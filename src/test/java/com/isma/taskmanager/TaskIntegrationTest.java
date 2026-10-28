@@ -16,6 +16,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -84,6 +85,14 @@ class TaskIntegrationTest {
             mockMvc.perform(delete("/api/v1/projects/{id}", projectId)).andExpect(status().isNoContent());
             mockMvc.perform(delete("/api/v1/projects/{id}", otherProjectId)).andExpect(status().isNoContent());
         }
+    }
+
+    @Test
+    void unknownSortPropertyReturns400() throws Exception {
+        mockMvc.perform(get("/api/v1/tasks").param("sort", "unknownField"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.detail").value("Unknown sort property 'unknownField'"));
     }
 
     @Test
